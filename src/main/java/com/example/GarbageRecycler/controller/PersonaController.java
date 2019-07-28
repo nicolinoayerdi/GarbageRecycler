@@ -14,9 +14,12 @@ import java.util.List;
 public class PersonaController {
     @Autowired
     PersonaService ps;
-    @PostMapping(path = "/api/personas")
+    @PostMapping(path = "/api/users")
     public ResponseEntity<Persona> registerPersona(@RequestBody Persona p){
         Persona newP = ps.register(p);
+        if (newP == null){
+            return ResponseEntity.badRequest().body(newP);
+        }
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -24,15 +27,20 @@ public class PersonaController {
                 .toUri();
         return ResponseEntity.created(location).body(newP);
     }
-    @GetMapping(path = "/api/personas")
+
+    @GetMapping(path = "/api/users/")
     public ResponseEntity<List<Persona>> getPersonas( ){
         List<Persona> list = ps.getAllPersonas();
         return ResponseEntity.ok(list);
     }
-    @GetMapping(path = "/api/personas/{name}/")
-    public ResponseEntity<Persona> getPersona(@PathVariable(value = "name")
-                                                      String name){
-        Persona p = ps.findByName(name);
+
+    @GetMapping(path = "/api/users/{username}/")
+    public ResponseEntity<Persona> getPersona(@PathVariable(value = "username")
+                                                      String username){
+        Persona p = ps.findByUsername(username);
+        if (p == null){
+            return ResponseEntity.badRequest().body(p);
+        }
         return ResponseEntity.ok(p);
     }
 }
